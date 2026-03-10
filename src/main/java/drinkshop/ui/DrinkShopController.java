@@ -131,7 +131,8 @@ public class DrinkShopController {
                 txtProdName.getText(),
                 Double.parseDouble(txtProdPrice.getText()),
                 comboProdCategorie.getValue(),
-                comboProdTip.getValue());
+                comboProdTip.getValue(),
+                r);
         service.addProduct(p);
         initData();
     }
@@ -142,7 +143,8 @@ public class DrinkShopController {
         if (selected == null) return;
         service.updateProduct(selected.getId(), txtProdName.getText(),
                 Double.parseDouble(txtProdPrice.getText()),
-                comboProdCategorie.getValue(), comboProdTip.getValue());
+                comboProdCategorie.getValue(), comboProdTip.getValue(),
+                selected.getReteta());
         initData();
     }
 
@@ -225,6 +227,17 @@ public class DrinkShopController {
         currentOrder.getItems().clear();
         currentOrder.getItems().addAll(currentOrderItems);
         currentOrder.computeTotalPrice();
+
+        try {
+            for (OrderItem item : currentOrderItems) {
+                for(int i = 0; i < item.getQuantity(); i++) {
+                    service.comandaProdus(item.getProduct());
+                }
+            }
+        } catch (IllegalStateException e) {
+            showError("Eroare stoc: " + e.getMessage());
+            return;
+        }
 
         service.addOrder(currentOrder);
         txtReceipt.setText(service.generateReceipt(currentOrder));

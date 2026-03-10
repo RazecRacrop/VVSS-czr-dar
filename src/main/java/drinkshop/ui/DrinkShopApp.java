@@ -18,9 +18,10 @@ public class DrinkShopApp extends Application {
     public void start(Stage stage) throws Exception {
 
         // ---------- Initializare Repository-uri care citesc din fisiere ----------
-        Repository<Integer, Product> productRepo = new FileProductRepository("data/products.txt");
-        Repository<Integer, Order> orderRepo = new FileOrderRepository("data/orders.txt", productRepo);
         Repository<Integer, Reteta> retetaRepo = new FileRetetaRepository("data/retete.txt");
+
+        Repository<Integer, Product> productRepo = new FileProductRepository("data/products.txt", retetaRepo);
+        Repository<Integer, Order> orderRepo = new FileOrderRepository("data/orders.txt", productRepo);
         Repository<Integer, Stoc> stocRepo = new FileStocRepository("data/stocuri.txt");
 
         // ---------- Initializare Service ----------

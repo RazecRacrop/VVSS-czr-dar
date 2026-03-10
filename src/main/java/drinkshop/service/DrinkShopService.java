@@ -34,8 +34,8 @@ public class DrinkShopService {
         productService.addProduct(p);
     }
 
-    public void updateProduct(int id, String name, double price, CategorieBautura categorie, TipBautura tip) {
-        productService.updateProduct(id, name, price, categorie, tip);
+    public void updateProduct(int id, String name, double price, CategorieBautura categorie, TipBautura tip, Reteta reteta) {
+        productService.updateProduct(id, name, price, categorie, tip, reteta);
     }
 
     public void deleteProduct(int id) {
@@ -83,9 +83,6 @@ public class DrinkShopService {
     public void comandaProdus(Product produs) {
         Reteta reteta = retetaService.findById(produs.getId());
 
-        if (!stocService.areSuficient(reteta)) {
-            throw new IllegalStateException("Stoc insuficient pentru produsul: " + produs.getNume());
-        }
         stocService.consuma(reteta);
     }
 
