@@ -4,73 +4,127 @@
 top to bottom direction
 skinparam linetype ortho
 
-class AbstractRepository<ID, E>
-enum CategorieBautura << enumeration >>
-class CsvExporter
-class DailyReportService
-class DrinkShopApp
-class DrinkShopController
-class DrinkShopService
-class FileAbstractRepository<ID, E>
-class FileOrderRepository
-class FileProductRepository
-class FileRetetaRepository
-class FileStocRepository
-class IngredientReteta
-class Order
-class OrderItem
-class OrderItemValidator
-class OrderService
-class OrderValidator
-class Product
-class ProductService
-class ProductTest
-class ProductValidator
-class ReceiptGenerator
-interface Repository<ID, E> << interface >>
-class Reteta
-class RetetaService
-class RetetaValidator
-class Stoc
-class StocService
-class StocValidator
-enum TipBautura << enumeration >>
-class ValidationException
-interface Validator<T> << interface >>
+' --- ENTITĂȚI ȘI DOMAIN MODEL ---
 
-AbstractRepository      -[#008200,dashed]-^  Repository             
-DailyReportService     "1" *-[#595959,plain]-> "repo\n1" Repository             
-DrinkShopController    "1" *-[#595959,plain]-> "service\n1" DrinkShopService       
-DrinkShopController    "1" *-[#595959,plain]-> "newRetetaList\n*" IngredientReteta       
-DrinkShopController    "1" *-[#595959,plain]-> "currentOrder\n1" Order                  
-DrinkShopController    "1" *-[#595959,plain]-> "currentOrderItems\n*" OrderItem              
-DrinkShopController    "1" *-[#595959,plain]-> "productList\n*" Product                
-DrinkShopController    "1" *-[#595959,plain]-> "retetaList\n*" Reteta                 
-DrinkShopService       "1" *-[#595959,plain]-> "report\n1" DailyReportService     
-DrinkShopService       "1" *-[#595959,plain]-> "orderService\n1" OrderService           
-DrinkShopService       "1" *-[#595959,plain]-> "productService\n1" ProductService         
-DrinkShopService       "1" *-[#595959,plain]-> "retetaService\n1" RetetaService          
-DrinkShopService       "1" *-[#595959,plain]-> "stocService\n1" StocService            
-FileAbstractRepository  -[#000082,plain]-^  AbstractRepository     
-FileOrderRepository     -[#000082,plain]-^  FileAbstractRepository 
-FileOrderRepository    "1" *-[#595959,plain]-> "productRepository\n1" Repository             
-FileProductRepository   -[#000082,plain]-^  FileAbstractRepository 
-FileRetetaRepository    -[#000082,plain]-^  FileAbstractRepository 
-FileStocRepository      -[#000082,plain]-^  FileAbstractRepository 
-Order                  "1" *-[#595959,plain]-> "items\n*" OrderItem              
-OrderItem              "1" *-[#595959,plain]-> "product\n1" Product                
-OrderItemValidator      -[#008200,dashed]-^  Validator              
-OrderService           "1" *-[#595959,plain]-> "orderRepo\n1" Repository             
-OrderValidator         "1" *-[#595959,plain]-> "itemValidator\n1" OrderItemValidator     
-OrderValidator          -[#008200,dashed]-^  Validator              
-Product                "1" *-[#595959,plain]-> "categorie\n1" CategorieBautura       
-Product                "1" *-[#595959,plain]-> "tip\n1" TipBautura             
-ProductService         "1" *-[#595959,plain]-> "productRepo\n1" Repository             
-ProductTest            "1" *-[#595959,plain]-> "product\n1" Product                
-ProductValidator        -[#008200,dashed]-^  Validator              
-Reteta                 "1" *-[#595959,plain]-> "ingrediente\n*" IngredientReteta       
-RetetaService          "1" *-[#595959,plain]-> "retetaRepo\n1" Repository             
-RetetaValidator         -[#008200,dashed]-^  Validator              
-StocService            "1" *-[#595959,plain]-> "stocRepo\n1" Repository             
-StocValidator           -[#008200,dashed]-^  Validator              
+class Product {
+    - id: int
+    - nume: String
+    - pret: double
+    - categorie: CategorieBautura
+    - tip: TipBautura
+    - reteta: Reteta
+}
+
+class Reteta {
+    - id: int
+    - ingrediente: List<IngredientReteta>
+}
+
+class IngredientReteta {
+    - denumire: String
+    - cantitate: double
+}
+
+class Stoc {
+    - id: int
+    - ingredient: String
+    - cantitate: double
+    - stocMinim: double
+}
+
+class Order {
+    - id: int
+    - items: List<OrderItem>
+    - totalPrice: double
+    + computeTotalPrice(): void
+}
+
+class OrderItem {
+    - product: Product
+    - quantity: int
+    - total: double
+}
+
+' --- STRATUL DE ACCES DATE (REPOSITORY) ---
+
+interface Repository<ID, E> << interface >> {
+    + findAll(): List<E>
+    + findOne(id: ID): E
+    + save(entity: E): void
+    + delete(id: ID): void
+    + update(entity: E): void
+}
+
+abstract class AbstractRepository<ID, E> implements Repository
+class FileAbstractRepository<ID, E> extends AbstractRepository
+class FileOrderRepository extends FileAbstractRepository
+class FileProductRepository extends FileAbstractRepository
+class FileRetetaRepository extends FileAbstractRepository
+class FileStocRepository extends FileAbstractRepository
+
+' --- STRATUL DE LOGICĂ (SERVICE) ---
+
+class DrinkShopService {
+    ' S-au eliminat listele de date (allProducts etc.) pentru a reduce cuplajul
+    - productService: ProductService
+    - orderService: OrderService
+    - retetaService: RetetaService
+    - stocService: StocService
+    + finalizeOrder(order: Order): void
+}
+
+class ProductService {
+    - productRepo: Repository<Integer, Product>
+}
+
+class OrderService {
+    - orderRepo: Repository<Integer, Order>
+}
+
+class RetetaService {
+    - retetaRepo: Repository<Integer, Reteta>
+}
+
+class StocService {
+    - stocRepo: Repository<Integer, Stoc>
+}
+
+' --- VALIDARE ȘI EXCEPTII ---
+
+interface Validator<T> << interface >>
+class ProductValidator implements Validator
+class OrderValidator implements Validator
+class OrderItemValidator implements Validator
+class RetetaValidator implements Validator
+class StocValidator implements Validator
+class ValidationException
+
+' --- RELAȚII CORECTATE ---
+
+' 1. Conectarea clasei Stoc (Problema 1)
+Stoc "1" -- "1" IngredientReteta : monitorizează >
+
+' 2. Legătura Product - Reteta (Problema 2)
+Product "1" *-- "1" Reteta : are >
+
+' 3. Curățarea atributelor duplicate (Problema 3)
+' Atributele din Order și OrderItem au fost rescrise simplificat în definițiile claselor de mai sus.
+
+' 4. Reducerea cuplajului în DrinkShopService (Problema 4)
+' Atributele de tip List au fost eliminate din definiția clasei DrinkShopService.
+
+' 5. Structura Service clară (Problema 5)
+DrinkShopService "1" *-- "1" ProductService
+DrinkShopService "1" *-- "1" OrderService
+DrinkShopService "1" *-- "1" RetetaService
+DrinkShopService "1" *-- "1" StocService
+
+' 6. Legătura ValidationException (Problema 6)
+Validator ..> ValidationException : aruncă >
+
+' Alte asocieri necesare
+Order "1" *-- "*" OrderItem
+OrderItem "1" o-- "1" Product
+Reteta "1" *-- "*" IngredientReteta
+
 @enduml
