@@ -16,10 +16,11 @@ public class Order implements Serializable {
         this.totalPrice = 0.0;
     }
 
-    public Order(int id, List<OrderItem> items, double totalPrice) {
+    public Order(int id, List<OrderItem> items) {
         this.id = id;
         this.items = new ArrayList<>(items);
         this.totalPrice = totalPrice;
+        computeTotalPrice();
     }
 
     public int getId() {
@@ -27,7 +28,7 @@ public class Order implements Serializable {
     }
 
     public List<OrderItem> getItems() {
-        return items;
+        return new ArrayList<>(items);
     }
 
     public double getTotalPrice() {
@@ -35,19 +36,18 @@ public class Order implements Serializable {
     }
 
     public void setItems(List<OrderItem> items) {
-        this.items = items;
-    }
-
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
+        this.items = new ArrayList<>(items);
+        computeTotalPrice();
     }
 
     public void addItem(OrderItem item) {
         this.items.add(item);
+        computeTotalPrice();
     }
 
     public void removeItem(OrderItem item) {
         this.items.remove(item);
+        computeTotalPrice();
     }
 
     @Override

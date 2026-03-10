@@ -4,6 +4,8 @@ import drinkshop.domain.IngredientReteta;
 import drinkshop.domain.Reteta;
 import drinkshop.domain.Stoc;
 import drinkshop.repository.Repository;
+import drinkshop.service.validator.StocValidator;
+import drinkshop.service.validator.Validator;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.Map;
 public class StocService {
 
     private final Repository<Integer, Stoc> stocRepo;
+    private final Validator<Stoc> stocValidator = new StocValidator();
 
     public StocService(Repository<Integer, Stoc> stocRepo) {
         this.stocRepo = stocRepo;
@@ -21,10 +24,12 @@ public class StocService {
     }
 
     public void add(Stoc s) {
+        stocValidator.validate(s);
         stocRepo.save(s);
     }
 
     public void update(Stoc s) {
+        stocValidator.validate(s);
         stocRepo.update(s);
     }
 
@@ -36,11 +41,11 @@ public class StocService {
         List<IngredientReteta> ingredienteNecesare = reteta.getIngrediente();
 
         for (IngredientReteta e : ingredienteNecesare) {
-            String ingredient = e.getDenumire();
+            String ingredientNume = e.getDenumire();
             double necesar = e.getCantitate();
 
             double disponibil = stocRepo.findAll().stream()
-                    .filter(s -> s.getIngredient().equalsIgnoreCase(ingredient))
+                    .filter(s -> s.getIngredient().getDenumire().equalsIgnoreCase(ingredientNume))
                     .mapToDouble(Stoc::getCantitate)
                     .sum();
 
@@ -57,11 +62,11 @@ public class StocService {
         }
 
         for (IngredientReteta e : reteta.getIngrediente()) {
-            String ingredient = e.getDenumire();
+            String ingredientNume = e.getDenumire();
             double necesar = e.getCantitate();
 
             List<Stoc> ingredienteStoc = stocRepo.findAll().stream()
-                    .filter(s -> s.getIngredient().equalsIgnoreCase(ingredient))
+                    .filter(s -> s.getIngredient().getDenumire().equalsIgnoreCase(ingredientNume))
                     .toList();
 
             double ramas = necesar;
@@ -70,9 +75,10 @@ public class StocService {
                 if (ramas <= 0) break;
 
                 double deScazut = Math.min(s.getCantitate(), ramas);
-                s.setCantitate((int)(s.getCantitate() - deScazut));
+                s.setCantitate(s.getCantitate() - deScazut);
                 ramas -= deScazut;
 
+                stocValidator.validate(s);
                 stocRepo.update(s);
             }
         }

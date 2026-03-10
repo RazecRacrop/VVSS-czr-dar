@@ -10,25 +10,26 @@ public class OrderValidator implements Validator<Order> {
     @Override
     public void validate(Order order) {
 
-        String errors = "";
+        StringBuilder bld = new StringBuilder();
 
         if (order.getId() <= 0)
-            errors += "ID comanda invalid!\n";
+            bld.append( "ID comanda invalid!\n");
 
         if (order.getItems() == null || order.getItems().isEmpty())
-            errors += "Comanda fara produse!\n";
+            bld.append( "Comanda fara produse!\n");
 
         for (OrderItem item : order.getItems()) {
             try {
                 itemValidator.validate(item);
             } catch (ValidationException e) {
-                errors += e.getMessage();
+                bld.append( e.getMessage());
             }
         }
 
         if (order.getTotalPrice() < 0)
-            errors += "Total invalid!\n";
+            bld.append( "Total invalid!\n");
 
+        String errors = bld.toString();
         if (!errors.isEmpty())
             throw new ValidationException(errors);
     }

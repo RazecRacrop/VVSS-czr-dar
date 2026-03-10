@@ -2,13 +2,18 @@ package drinkshop.repository.file;
 
 import drinkshop.domain.Product;
 import drinkshop.domain.CategorieBautura;
+import drinkshop.domain.Reteta;
 import drinkshop.domain.TipBautura;
+import drinkshop.repository.Repository;
 
 public class FileProductRepository
         extends FileAbstractRepository<Integer, Product> {
 
-    public FileProductRepository(String fileName) {
+    private Repository<Integer, Reteta> retetaRepository;
+
+    public FileProductRepository(String fileName,Repository<Integer, Reteta> retetaRepository) {
         super(fileName);
+        this.retetaRepository = retetaRepository;
         loadFromFile();
     }
 
@@ -28,7 +33,9 @@ public class FileProductRepository
         CategorieBautura categorie = CategorieBautura.valueOf(elems[3]);
         TipBautura tip = TipBautura.valueOf(elems[4]);
 
-        return new Product(id, name, price, categorie, tip);
+        Reteta reteta = retetaRepository.findOne(id);
+
+        return new Product(id, name, price, categorie, tip,reteta);
     }
 
     @Override

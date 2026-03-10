@@ -1,5 +1,6 @@
 package drinkshop.repository.file;
 
+import drinkshop.domain.IngredientReteta;
 import drinkshop.domain.Stoc;
 
 public class FileStocRepository
@@ -20,18 +21,18 @@ public class FileStocRepository
         String[] elems = line.split(";");
 
         int id = Integer.parseInt(elems[0]);
-        String ingredient = elems[1];
-        int cantitate = Integer.parseInt(elems[2]);
-        int stocMinim = Integer.parseInt(elems[3]);
+        String numeIngredient = elems[1];
+        double cantitate = Double.parseDouble(elems[2]);
 
-        return new Stoc(id, ingredient, cantitate, stocMinim);
+        IngredientReteta ingredientReteta = new IngredientReteta(numeIngredient,0.0);
+
+        return new Stoc(id, ingredientReteta, cantitate);
     }
 
     @Override
     protected String createEntityAsString(Stoc entity) {
         return entity.getId() + ";" +
                 entity.getIngredient() + ";" +
-                entity.getCantitate() + ";" +
-                entity.getStocMinim();
+                entity.getCantitate() + ";";
     }
 }
