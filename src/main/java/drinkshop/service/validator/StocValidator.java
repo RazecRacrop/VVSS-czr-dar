@@ -12,8 +12,9 @@ public class StocValidator implements Validator<Stoc> {
         if (stoc.getId() <= 0)
             errors += "ID invalid!\n";
 
-        if (stoc.getIngredient() == null || stoc.getIngredient().isBlank())
+        if (stoc.getIngredient() == null || stoc.getIngredient().getDenumire() == null || stoc.getIngredient().getDenumire().isBlank()) {
             errors += "Ingredient invalid!\n";
+        }
 
         if (stoc.getCantitate() < 0)
             errors += "Cantitate negativa!\n";
