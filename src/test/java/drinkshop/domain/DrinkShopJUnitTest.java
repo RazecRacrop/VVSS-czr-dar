@@ -25,7 +25,7 @@ class DrinkShopJUnitTest {
     @Test
     @DisplayName("TC_01 (EPV): Produs valid - Cafea clasica")
     void tc01() {
-        Product p = new Product(1, "Americano", 12.0,
+        Product p = new Product(10, "Americano", 12.0,
                 CategorieBautura.CLASSIC_COFFEE, TipBautura.WATER_BASED,
                 "Cafea neagra tare", dummyReteta);
         assertDoesNotThrow(() -> validator.validate(p));
@@ -47,7 +47,7 @@ class DrinkShopJUnitTest {
     @DisplayName("TC_03 (EPV): Produs valid - Milk Coffee")
     void tc03() {
 
-        Product p = new Product(3, "Latte", 15.5,
+        Product p = new Product(12, "Latte", 15.5,
                 CategorieBautura.MILK_COFFEE, TipBautura.DAIRY,
                 "Cafea cu lapte fin", dummyReteta);
 
@@ -69,7 +69,7 @@ class DrinkShopJUnitTest {
     @Test
     @DisplayName("TC_05 (EPV): Respingere pret negativ")
     void tc05() {
-        Product p = new Product(4, "Invalid", -1.0,
+        Product p = new Product(13, "Invalid", -1.0,
                 CategorieBautura.SPECIAL_COFFEE, TipBautura.POWDER,
                 "Descriere", dummyReteta);
         assertThrows(ValidationException.class, () -> validator.validate(p));
@@ -89,7 +89,7 @@ class DrinkShopJUnitTest {
     @Test
     @DisplayName("TC_07 (EPV): Respingere nume vid")
     void tc07() {
-        Product p = new Product(6, "", 10.0,
+        Product p = new Product(14, "", 10.0,
                 CategorieBautura.BUBBLE_TEA, TipBautura.WATER_BASED,
                 "Descriere", dummyReteta);
         assertThrows(ValidationException.class, () -> validator.validate(p));
